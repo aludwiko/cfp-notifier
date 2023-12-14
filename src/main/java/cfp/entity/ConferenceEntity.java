@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.UUID;
 
 @TypeId("conference")
-@Id("conference_id")
+@Id("conferenceId")
 public class ConferenceEntity extends ValueEntity<Conference> {
 
-    @PostMapping("/conferences/{conference_id}")
+    @PostMapping("/conferences/{conferenceId}")
     public Effect<Conference> createConference(
             @PathVariable String conferenceId, @RequestBody CreateConference createConference
     ) {
@@ -28,9 +28,9 @@ public class ConferenceEntity extends ValueEntity<Conference> {
                 .thenReply(currentState());
     }
 
-    @GetMapping("/conferences/{conference_id}")
+    @GetMapping("/conferences/{conferenceId}")
     public Effect<Conference> getConferenceById() {
-        
+
         return effects()
                 .reply(currentState());
     }
