@@ -1,0 +1,10 @@
+###
+POST http://0.0.0.0:9000/conferences/kubecon
+Content-Type: application/json
+
+{
+  "name": "kubecon",
+  "deadline": "2023-12-14T19:31:51.867104918+05:30[Asia/Calcutta]"
+}
+
+<> 2023-12-14T193411.200.json
