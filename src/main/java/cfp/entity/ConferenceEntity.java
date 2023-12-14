@@ -19,10 +19,13 @@ public class ConferenceEntity extends ValueEntity<Conference> {
     public Effect<Conference> createConference(
             @PathVariable String conferenceId, @RequestBody CreateConference createConference
     ) {
-        var conference = new Conference(conferenceId, createConference.name(), createConference.deadline());
-        return effects()
-                .updateState(conference)
-                .thenReply(conference);
+        if(currentState() == null) {
+            var conference = new Conference(conferenceId, createConference.name(), createConference.deadline());
+            return effects()
+                    .updateState(conference)
+                    .thenReply(conference);
+        }
+        return effects().error("Current state exists");
     }
 
     @GetMapping("/conferences/{conference_id}")
