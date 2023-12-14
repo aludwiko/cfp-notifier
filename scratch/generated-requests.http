@@ -1,0 +1,146 @@
+### List all conferences view
+GET http://0.0.0.0:9000/cfps
+
+
+### create a entity by calling the api
+POST http://0.0.0.0:9000/api/cfp/create?text=scalaconf%202023-12-14%20https%3A%2F%2Fwww.scalar-conf.com%2F
+
+
+### create a entity by calling the api
+POST http://0.0.0.0:9000/api/cfp/create
+Content-Type: application/x-www-form-urlencoded
+
+text=scalaconf%202023-12-14%20https%3A%2F%2Fwww.scalar-conf.com%2F
+
+### create a entity by calling the api
+POST https://rapid-union-2331.us-east1.kalixapps.com/api/cfp/create
+Content-Type: application/x-www-form-urlencoded
+
+token=hTWnFQeG4XXUWk8u6vDBvmaH&team_id=T06A2ECBTSR&team_domain=lightbend-test&channel_id=C06A5CYV2MQ&channel_name=cfp-hackathon&user_id=U06AJ1JA509&user_name=andrzej.ludwikowski&command=%2Fcfp-add&text=asd+2003-01-01&api_app_id=A06A5FB58HG&is_enterprise_install=false&response_url=https%3A%2F%2Fhooks.slack.com%2Fcommands%2FT06A2ECBTSR%2F6369225428309%2FRfUiDBs3Om11JIIcUoevfQBH&trigger_id=6374608328804.6342488401909.25e48bc9cc0896381423ee5b7a283739
+
+### create a entity by calling the api
+POST https://rapid-union-2331.us-east1.kalixapps.com/api/cfp/create
+Content-Type: application/x-www-form-urlencoded
+
+token=hTWnFQeG4XXUWk8u6vDBvmaH&team_id=T06A2ECBTSR&team_domain=lightbend-test&channel_id=C06A5CYV2MQ&channel_name=cfp-hackathon&user_id=U06AJ1JA509&user_name=andrzej.ludwikowski&command=%2Fcfp-add&text=asd+2003-01-01&api_app_id=A06A5FB58HG&is_enterprise_install=false&response_url=https%3A%2F%2Fhooks.slack.com%2Fcommands%2FT06A2ECBTSR%2F6369225428309%2FRfUiDBs3Om11JIIcUoevfQBH&trigger_id=6374608328804.6342488401909.25e48bc9cc0896381423ee5b7a283739
+
+
+### action
+
+payload=%7B%2type%22%3A%22block_actions%22%2C%22user%22%3A%7B%22id%22%3A%22U06AJ1JA509%22%2C%22username%22%3A%22andrzej.ludwikowski%22%2C%22name%22%3A%22andrzej.ludwikowski%22%2C%22team_id%22%3A%22T06A2ECBTSR%22%7D%2C%22api_app_id%22%3A%22A06A5FB58HG%22%2C%22token%22%3A%22hTWnFQeG4XXUWk8u6vDBvmaH%22%2C%22container%22%3A%7B%22type%22%3A%22message%22%2C%22message_ts%22%3A%221703253713.477619%22%2C%22channel_id%22%3A%22C06BB8X7890%22%2C%22is_ephemeral%22%3Afalse%7D%2C%22trigger_id%22%3A%226408987330288.6342488401909.db6c09b61416b7ed4cf3c4d0245d9ad0%22%2C%22team%22%3A%7B%22id%22%3A%22T06A2ECBTSR%22%2C%22domain%22%3A%22lightbend-test%22%7D%2C%22enterprise%22%3Anull%2C%22is_enterprise_install%22%3Afalse%2C%22channel%22%3A%7B%22id%22%3A%22C06BB8X7890%22%2C%22name%22%3A%22testing%22%7D%2C%22message%22%3A%7B%22type%22%3A%22message%22%2C%22subtype%22%3A%22bot_message%22%2C%22text%22%3A%22This+message+contains+interactive+elements.%22%2C%22ts%22%3A%221703253713.477619%22%2C%22bot_id%22%3A%22B06BDN7BMC4%22%2C%22blocks%22%3A%5B%7B%22type%22%3A%22actions%22%2C%22block_id%22%3A%22kyxf%2B%22%2C%22elements%22%3A%5B%7B%22type%22%3A%22static_select%22%2C%22action_id%22%3A%22delete-cfp%22%2C%22placeholder%22%3A%7B%22type%22%3A%22plain_text%22%2C%22text%22%3A%22Select+cfp%22%2C%22emoji%22%3Atrue%7D%2C%22options%22%3A%5B%7B%22text%22%3A%7B%22type%22%3A%22plain_text%22%2C%22text%22%3A%22scalaconf+2023-12-14%22%2C%22emoji%22%3Atrue%7D%2C%22value%22%3A%2255b0f53e-8e07-434c-84e9-ce0840110043%22%7D%2C%7B%22text%22%3A%7B%22type%22%3A%22plain_text%22%2C%22text%22%3A%22scalaconf+2023-12-14%22%2C%22emoji%22%3Atrue%7D%2C%22value%22%3A%22cb803a1c-efe8-4c76-9402-9bfa477e0157%22%7D%5D%2C%22confirm%22%3A%7B%22text%22%3A%7B%22type%22%3A%22plain_text%22%2C%22text%22%3A%22Are+you+sure+you+want+to+delete+this+call+for+papers%3F%22%2C%22emoji%22%3Atrue%7D%2C%22confirm%22%3A%7B%22type%22%3A%22plain_text%22%2C%22text%22%3A%22Ok%22%2C%22emoji%22%3Atrue%7D%2C%22deny%22%3A%7B%22type%22%3A%22plain_text%22%2C%22text%22%3A%22Cancel%22%2C%22emoji%22%3Atrue%7D%7D%7D%5D%7D%5D%7D%2C%22state%22%3A%7B%22values%22%3A%7B%22kyxf%2B%22%3A%7B%22delete-cfp%22%3A%7B%22type%22%3A%22static_select%22%2C%22selected_option%22%3A%7B%22text%22%3A%7B%22type%22%3A%22plain_text%22%2C%22text%22%3A%22scalaconf+2023-12-14%22%2C%22emoji%22%3Atrue%7D%2C%22value%22%3A%22cb803a1c-efe8-4c76-9402-9bfa477e0157%22%7D%7D%7D%7D%7D%2C%22response_url%22%3A%22https%3A%5C%2F%5C%2Fhooks.slack.com%5C%2Factions%5C%2FT06A2ECBTSR%5C%2F6371667031031%5C%2FUrhj8twCW3brafAOLTbj3Bdm%22%2C%22actions%22%3A%5B%7B%22confirm%22%3A%7B%22text%22%3A%7B%22type%22%3A%22plain_text%22%2C%22text%22%3A%22Are+you+sure+you+want+to+delete+this+call+for+papers%3F%22%2C%22emoji%22%3Atrue%7D%2C%22confirm%22%3A%7B%22type%22%3A%22plain_text%22%2C%22text%22%3A%22Ok%22%2C%22emoji%22%3Atrue%7D%2C%22deny%22%3A%7B%22type%22%3A%22plain_text%22%2C%22text%22%3A%22Cancel%22%2C%22emoji%22%3Atrue%7D%7D%2C%22type%22%3A%22static_select%22%2C%22action_id%22%3A%22delete-cfp%22%2C%22block_id%22%3A%22kyxf%2B%22%2C%22selected_option%22%3A%7B%22text%22%3A%7B%22type%22%3A%22plain_text%22%2C%22text%22%3A%22scalaconf+2023-12-14%22%2C%22emoji%22%3Atrue%7D%2C%22value%22%3A%22cb803a1c-efe8-4c76-9402-9bfa477e0157%22%7D%2C%22placeholder%22%3A%7B%22type%22%3A%22plain_text%22%2C%22text%22%3A%22Select+cfp%22%2C%22emoji%22%3Atrue%7D%2C%22action_ts%22%3A%221703254009.814618%22%7D%5D%7D
+
+
+token=hTWnFQeG4XXUWk8u6vDBvmaH&team_id=T06A2ECBTSR&team_domain=lightbend-test&channel_id=C06BB8X7890&channel_name=testing&user_id=U06AJ1JA509&user_name=andrzej.ludwikowski&command=%2Fmodal&text=&api_app_id=A06A5FB58HG&is_enterprise_install=false&response_url=https%3A%2F%2Fhooks.slack.com%2Fcommands%2FT06A2ECBTSR%2F6409158929280%2FTtxKYzD5szyJItk185vUS1si&trigger_id=
+
+### modal
+POST https://hooks.slack.com/commands/T06A2ECBTSR/6409158929280/TtxKYzD5szyJItk185vUS1si
+Content-type: application/json
+
+{
+  "trigger_id": "6386380310450.6342488401909.d59e6c869715372bed8537f563d7451a",
+  "view": {
+    "type": "modal",
+    "callback_id": "modal-identifier",
+    "title": {
+      "type": "plain_text",
+      "text": "Just a modal"
+    },
+    "blocks": [
+      {
+        "type": "section",
+        "block_id": "section-identifier",
+        "text": {
+          "type": "mrkdwn",
+          "text": "*Welcome* to ~my~ Block Kit _modal_!"
+        },
+        "accessory": {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Just a button"
+          },
+          "action_id": "button-identifier"
+        }
+      }
+    ]
+  }
+}
+
+###
+
+# curl -X POST -H 'Content-type: application/json' --data '{"text":"Hello, World!"}' https://hooks.slack.com/services/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
+POST https://hooks.slack.com/commands/T06A2ECBTSR/6409158929280/TtxKYzD5szyJItk185vUS1si
+Content-Type: application/json
+
+{
+  "trigger_id": "6386398377602.6342488401909.6f5db64d5826ff7e78efb64e93dead80",
+  "view": {
+    "type": "modal",
+    "callback_id": "modal-identifier",
+    "title": {
+      "type": "plain_text",
+      "text": "Just a modal"
+    },
+    "blocks": [
+      {
+        "type": "section",
+        "block_id": "section-identifier",
+        "text": {
+          "type": "mrkdwn",
+          "text": "*Welcome* to ~my~ Block Kit _modal_!"
+        },
+        "accessory": {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Just a button"
+          },
+          "action_id": "button-identifier"
+        }
+      }
+    ]
+  }
+}
+
+### List all conferences view
+
+POST http://0.0.0.0:9000/api/cfp/modal?trigger_id=6386398377602.6342488401909.6f5db64d5826ff7e78efb64e93dead80
+
+
+###
+POST https://slack.com/api/views.open
+Content-type: application/json
+Authorization: Bearer xoxb-6342488401909-6368335709760-1nBoMrzzLpmRS3aRu8qdAcvx
+
+{
+  "trigger_id": "6404238032932.6342488401909.064f9b2617b1078e4b3356c0ca9e8dbc",
+  "view": {
+    "type": "modal",
+    "callback_id": "modal-identifier",
+    "title": {
+      "type": "plain_text",
+      "text": "Just a modal"
+    },
+    "blocks": [
+      {
+        "type": "section",
+        "block_id": "section-identifier",
+        "text": {
+          "type": "mrkdwn",
+          "text": "*Welcome* to ~my~ Block Kit _modal_!"
+        },
+        "accessory": {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Just a button"
+          },
+          "action_id": "button-identifier"
+        }
+      }
+    ]
+  }
+}
+
+### create a entity by calling the api
+POST http://0.0.0.0:9000/api/cfp/submit2?2
