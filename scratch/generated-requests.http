@@ -1,10 +1,23 @@
-###
+### Create a conference
 POST http://0.0.0.0:9000/conferences/kubecon
 Content-Type: application/json
 
 {
   "name": "kubecon",
-  "deadline": "2023-12-14T19:31:51.867104918+05:30[Asia/Calcutta]"
+  "deadline": "2023-12-14"
 }
 
-<> 2023-12-14T193411.200.json
+###  Create a second one
+POST http://0.0.0.0:9000/conferences/scaladays
+Content-Type: application/json
+
+{
+  "name": "Scala Days",
+  "deadline": "2024-01-11"
+}
+
+###
+GET http://0.0.0.0:9000/conferences/kubecon
+
+###
+GET http://0.0.0.0:9000/conferences

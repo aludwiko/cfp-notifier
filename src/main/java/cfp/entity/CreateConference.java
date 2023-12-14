@@ -1,6 +1,4 @@
 package cfp.entity;
 
-import java.time.ZonedDateTime;
-
-public record CreateConference(String name, ZonedDateTime deadline) {
+public record CreateConference(String name, java.time.LocalDate deadline) {
 }
