@@ -24,3 +24,16 @@ GET http://0.0.0.0:9000/conferences
 
 ### create a entity by calling the api
 POST http://0.0.0.0:9000/api/slack/conferences/create?text=scalaconf%202023-12-14
+
+
+### create a entity by calling the api
+POST http://0.0.0.0:9000/api/slack/conferences/create
+Content-Type: application/x-www-form-urlencoded
+
+text=scalaconf%202023-12-14
+
+### create a entity by calling the api
+POST https://snowy-rain-0581.us-east-2.kalixapps.com/api/slack/conferences/create
+Content-Type: application/x-www-form-urlencoded
+
+text = scalaconf%202023-12-14

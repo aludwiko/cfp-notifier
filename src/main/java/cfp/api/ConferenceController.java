@@ -3,6 +3,7 @@ package cfp.api;
 import cfp.entity.ConferenceEntity;
 import cfp.entity.CreateConference;
 import kalix.javasdk.action.Action;
+import kalix.javasdk.annotations.Acl;
 import kalix.javasdk.client.ComponentClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
 @RequestMapping("/api/slack/conferences")
+@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
 public class ConferenceController extends Action {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
