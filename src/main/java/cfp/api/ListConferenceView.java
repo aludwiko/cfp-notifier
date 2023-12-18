@@ -20,7 +20,7 @@ public class ListConferenceView extends View<ConferenceView> {
     }
     @GetMapping("/conferences")
     @Query("SELECT * FROM conferences")
-    public Flux<ConferenceView> getConference() {
+    public ConferenceViewList getConferences() {
         return null;
     }
 

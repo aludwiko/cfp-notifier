@@ -1,19 +1,24 @@
 package cfp.api;
 
+import akka.http.javadsl.Http;
+import akka.http.javadsl.model.*;
 import cfp.entity.ConferenceEntity;
 import cfp.entity.CreateConference;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Acl;
 import kalix.javasdk.client.ComponentClient;
+import kalix.javasdk.impl.action.ActionEffectImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @RequestMapping("/api/slack/conferences")
 @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
@@ -23,6 +28,8 @@ public class ConferenceController extends Action {
 
 
     private final ComponentClient componentClient;
+
+    private final Http akkaHttp = Http.get(actionContext().materializer().system());
 
     public ConferenceController(ComponentClient componentClient) {
         this.componentClient = componentClient;
@@ -61,7 +68,7 @@ public class ConferenceController extends Action {
         CompletionStage<Effect<String>> effect =
                 call.handle((conference, error) -> {
                     if (error == null) {
-                        logger.info("Created conference: " +  conference);
+                        logger.info("Created conference: " + conference);
                         return effects().reply(conference.id());
                     } else {
                         logger.error("Failed to create conference", error);
@@ -79,14 +86,39 @@ public class ConferenceController extends Action {
         return new CreateConference(name, LocalDate.parse(deadline));
     }
 
+    /**
+     * When called, this posts the whole list of conferences to the #cfp-hackathon channel.
+     */
+    @PostMapping("/post-list")
+    public Effect<String> postList() {
+        CompletionStage<ConferenceViewList> conferences = componentClient
+                .forView()
+                .call(ListConferenceView::getConferences)
+                .execute();
 
-    //
-//    @PostMapping("/println")
-//    public Effect<String> println() {
-//        componentClient.forView() forValueEntity(conferenceId).call(ConferenceEntity::createConference).params(conferenceId,
-//                createConference);
-//        System.out.println("asfd");
-//        return effects().reply("");
-//    }
+        CompletionStage<String> resCompletionStage = conferences.thenCompose(list -> {
+            var markdown = list.list().stream()
+                    .map(cv -> "* " + cv.name() + " " + cv.deadline() + "\n")
+                    .collect(Collectors.joining());
+            var req = HttpRequest.POST("https://hooks.slack.com/services/...")
+                    .withEntity(HttpEntities.create(ContentTypes.APPLICATION_JSON,
+                            "{\"text\":\"" + markdown + "\", \"mrkdwn\":true }"));
+            return akkaHttp.singleRequest(req);
+        }).thenApply(res -> {
+            switch (res.status().intValue()) {
+                case 200:
+                    return "OK";
+                default:
+                    if (res.entity().isStrict()) {
+                        final HttpEntity.Strict strict = (HttpEntity.Strict)res.entity();
+                        logger.error("request failed with: " + strict.getData().utf8String());
+                    } else {
+                        logger.error("request failed: status=" + res.status().intValue());
+                    }
+                    return "failed";
+            }
+        });
+        return effects().asyncReply(resCompletionStage);
+    }
 
 }
