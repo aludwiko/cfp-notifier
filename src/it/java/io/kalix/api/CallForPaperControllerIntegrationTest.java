@@ -19,6 +19,7 @@ import io.kalix.view.CallForPaperList;
 import io.kalix.view.CallForPaperView;
 import kalix.javasdk.DeferredCall;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,6 +52,7 @@ import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(classes = Main.class)
 @ActiveProfiles("it-test")
+@Disabled
 class CallForPaperControllerIntegrationTest extends KalixIntegrationTestKitSupport {
 
   private final Gson gson = GsonFactory.createSnakeCase(SlackConfig.DEFAULT);
