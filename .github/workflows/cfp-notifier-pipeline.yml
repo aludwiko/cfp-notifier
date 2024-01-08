@@ -21,7 +21,8 @@ jobs:
         id: hello
         uses: aludwiko/setup-kalix@main
         with:
-          who-to-greet: 'Mona the Octocat'
+          token: ${{ secrets.KALIX_PROD_TOKEN }}
+          project-id: ${{ vars.KALIX_PROD_PROJECT }}
 
 #jobs:
 #  build-and-deploy:
