@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Hello world action step
         id: hello
-        uses: aludwiko/setup-kalix@3e7f5d7840123ce5595b4aba9d4b9c623aed64a3
+        uses: aludwiko/setup-kalix@eef404b2e5ec38b95a5661bf1988338ac0d81541
         with:
           who-to-greet: 'Mona the Octocat'
 
