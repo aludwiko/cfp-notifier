@@ -13,6 +13,7 @@ env:
     KALIX_PROJECT: ${{ vars.KALIX_PROD_PROJECT }}
     SERVICE_NAME: cfp-notifier
 
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
