@@ -17,9 +17,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Hello world action step
+      - name: Hello world action step2
         id: hello
-        uses: aludwiko/setup-kalix@2ca676d6bbdd56c9cee9a692804d19c5b4aba43c
+        uses: aludwiko/setup-kalix@9e8fe605faef11ede1f13627fd653964366e891c
         with:
           who-to-greet: 'Mona the Octocat'
 
