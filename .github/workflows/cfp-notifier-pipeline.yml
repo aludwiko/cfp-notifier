@@ -19,7 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Kalix CLI
-        id: hello
         uses: aludwiko/setup-kalix@main
         with:
           token: ${{ secrets.KALIX_PROD_TOKEN }}
@@ -48,7 +47,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Kalix CLI
-        id: hello
         uses: aludwiko/setup-kalix@main
         with:
           token: ${{ secrets.KALIX_PROD_TOKEN }}
