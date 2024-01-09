@@ -23,6 +23,8 @@ jobs:
         with:
           token: ${{ secrets.KALIX_PROD_TOKEN }}
           project-id: ${{ vars.KALIX_PROD_PROJECT }}
+      - name: Test
+        run: kalix service list
       - name: Set up Java
         uses: actions/setup-java@v2
         with:
