@@ -52,6 +52,7 @@ import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(classes = Main.class)
 @ActiveProfiles("it-test")
+@Disabled //requires sdk update
 class CallForPaperControllerIntegrationTest extends KalixIntegrationTestKitSupport {
 
   private final Gson gson = GsonFactory.createSnakeCase(SlackConfig.DEFAULT);
