@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Kalix CLI
-        uses: lightbend/setup-kalix-action@setup-kalix-step
+        uses: lightbend/setup-kalix-action@v1
         with:
           token: ${{ secrets.KALIX_PROD_TOKEN }}
           project-id: ${{ vars.KALIX_PROD_PROJECT }}

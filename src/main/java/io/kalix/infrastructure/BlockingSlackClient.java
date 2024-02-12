@@ -1,14 +1,13 @@
 package io.kalix.infrastructure;
 
-import com.google.api.HttpBody;
 import com.google.gson.Gson;
-import com.google.protobuf.ByteString;
 import com.slack.api.Slack;
 import com.slack.api.SlackConfig;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.composition.PlainTextObject;
 import com.slack.api.model.block.element.RichTextElement;
+import com.slack.api.model.block.element.RichTextSectionElement.Emoji;
 import com.slack.api.model.block.element.RichTextSectionElement.Link;
 import com.slack.api.model.block.element.RichTextSectionElement.Text;
 import com.slack.api.model.view.View;
@@ -18,6 +17,7 @@ import com.slack.api.webhook.WebhookResponse;
 import com.typesafe.config.Config;
 import io.kalix.application.SlackClient;
 import io.kalix.application.SlackResponse;
+import io.kalix.domain.CallForPaperReminder;
 import io.kalix.view.CallForPaperView;
 import okhttp3.Response;
 import org.slf4j.Logger;
@@ -72,16 +72,16 @@ public class BlockingSlackClient implements SlackClient {
 
     Payload payload = payload(p -> p.blocks(List.of(newCfp)).unfurlLinks(true).unfurlMedia(true));
     try {
-      WebhookResponse response = slack.send(config.getString("cfp.webhook"), payload);
-      return CompletableFuture.completedFuture(new SlackResponse.Success(response.getCode(), response.getMessage() + "-" + response.getBody()));
+      WebhookResponse response = slack.send(config.getString("cfp.notifier.webhook"), payload);
+      return CompletableFuture.completedFuture(new SlackResponse.Response(response.getCode(), response.getMessage() + "-" + response.getBody()));
     } catch (IOException e) {
       return CompletableFuture.completedFuture(new SlackResponse.Failure(500, "Unexpected exception", e));
     }
   }
 
-  public HttpBody getCfpsListPayload(List<CallForPaperView> openCallForPapers) {
+  public String getCfpsListPayload(List<CallForPaperView> openCallForPapers) {
     Payload payload = cfpsListPayload(openCallForPapers);
-    return HttpBody.newBuilder().setContentType("application/json").setData(ByteString.copyFromUtf8(gson.toJson(payload))).build();
+    return gson.toJson(payload);
   }
 
   private static Payload cfpsListPayload(List<CallForPaperView> openCallForPapers) {
@@ -131,9 +131,9 @@ public class BlockingSlackClient implements SlackClient {
 
   private CompletableFuture<SlackResponse> postJsonBody(String url, String jsonString) {
     try (Response response = slack.getHttpClient().postCamelCaseJsonBodyWithBearerHeader(url,
-      config.getString("cfp.bot-oauth-token"),
+      config.getString("cfp.notifier.bot-oauth-token"),
       jsonString)) {
-      return CompletableFuture.completedFuture(new SlackResponse.Success(response.code(), response.message() + "-" + response.body()));
+      return CompletableFuture.completedFuture(new SlackResponse.Response(response.code(), response.message() + "-" + response.body()));
     } catch (IOException exception) {
       return CompletableFuture.completedFuture(new SlackResponse.Failure(500, "Unexpected exception", exception));
     }
@@ -168,6 +168,25 @@ public class BlockingSlackClient implements SlackClient {
 
     String jsonString = gson.toJson(obj);
     return postJsonBody(openViewUrl, jsonString);
+  }
+
+  @Override
+  public CompletionStage<SlackResponse> notifyAboutOpenCfp(CallForPaperReminder reminder) {
+    RichTextElement emoji = Emoji.builder().name("mega").build();
+    RichTextElement info = Text.builder().text(" " + reminder.conferenceName() + " conference call for papers ends within " + reminder.howManyDaysLeft() + " days (" + reminder.deadline() + "). Remember to submit your talk at ").build();
+    RichTextElement link = Link.builder().url(reminder.conferenceLink()).build();
+
+    LayoutBlock cfpReminder = richText(b -> b.elements(asElements(
+      richTextSection(s -> s.elements(asRichTextElements(emoji, info, link)))
+    )));
+
+    Payload payload = payload(p -> p.blocks(List.of(cfpReminder)).unfurlLinks(false).unfurlMedia(false));
+    try {
+      WebhookResponse response = slack.send(config.getString("cfp.notifier.webhook"), payload);
+      return CompletableFuture.completedFuture(new SlackResponse.Response(response.getCode(), response.getMessage() + "-" + response.getBody()));
+    } catch (IOException e) {
+      return CompletableFuture.completedFuture(new SlackResponse.Failure(500, "Unexpected exception", e));
+    }
   }
 
 

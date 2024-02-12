@@ -1,0 +1,131 @@
+### List all cfps view
+GET {{url}}/cfps
+
+
+### create a cfp by calling the entity directly
+POST http://0.0.0.0:9000/cfp/1
+Content-type: application/json
+
+{
+  "conferenceName": "scalar 2024",
+  "deadline": "2023-12-14",
+  "conferenceLink": "https://www.scalar-conf.com/",
+  "userName": "andrzej.ludwikowski"
+}
+
+### Force notification
+POST {{url}}/cfp/backoffice/trigger-notification/1
+
+
+### modal
+POST https://hooks.slack.com/commands/T06A2ECBTSR/6409158929280/TtxKYzD5szyJItk185vUS1si
+Content-type: application/json
+
+{
+  "trigger_id": "6386380310450.6342488401909.d59e6c869715372bed8537f563d7451a",
+  "view": {
+    "type": "modal",
+    "callback_id": "modal-identifier",
+    "title": {
+      "type": "plain_text",
+      "text": "Just a modal"
+    },
+    "blocks": [
+      {
+        "type": "section",
+        "block_id": "section-identifier",
+        "text": {
+          "type": "mrkdwn",
+          "text": "*Welcome* to ~my~ Block Kit _modal_!"
+        },
+        "accessory": {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Just a button"
+          },
+          "action_id": "button-identifier"
+        }
+      }
+    ]
+  }
+}
+
+###
+
+# curl -X POST -H 'Content-type: application/json' --data '{"text":"Hello, World!"}' https://hooks.slack.com/services/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
+POST https://hooks.slack.com/commands/T06A2ECBTSR/6409158929280/TtxKYzD5szyJItk185vUS1si
+Content-Type: application/json
+
+{
+  "trigger_id": "6386398377602.6342488401909.6f5db64d5826ff7e78efb64e93dead80",
+  "view": {
+    "type": "modal",
+    "callback_id": "modal-identifier",
+    "title": {
+      "type": "plain_text",
+      "text": "Just a modal"
+    },
+    "blocks": [
+      {
+        "type": "section",
+        "block_id": "section-identifier",
+        "text": {
+          "type": "mrkdwn",
+          "text": "*Welcome* to ~my~ Block Kit _modal_!"
+        },
+        "accessory": {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Just a button"
+          },
+          "action_id": "button-identifier"
+        }
+      }
+    ]
+  }
+}
+
+### List all conferences view
+
+POST http://0.0.0.0:9000/api/cfp/modal?trigger_id=6386398377602.6342488401909.6f5db64d5826ff7e78efb64e93dead80
+
+
+###
+POST https://slack.com/api/views.open
+Content-type: application/json
+Authorization: Bearer xoxb-6342488401909-6368335709760-1nBoMrzzLpmRS3aRu8qdAcvx
+
+{
+  "trigger_id": "6404238032932.6342488401909.064f9b2617b1078e4b3356c0ca9e8dbc",
+  "view": {
+    "type": "modal",
+    "callback_id": "modal-identifier",
+    "title": {
+      "type": "plain_text",
+      "text": "Just a modal"
+    },
+    "blocks": [
+      {
+        "type": "section",
+        "block_id": "section-identifier",
+        "text": {
+          "type": "mrkdwn",
+          "text": "*Welcome* to ~my~ Block Kit _modal_!"
+        },
+        "accessory": {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Just a button"
+          },
+          "action_id": "button-identifier"
+        }
+      }
+    ]
+  }
+}
+
+### create a entity by calling the api
+POST http://0.0.0.0:9000/api/cfp/submit2?2
