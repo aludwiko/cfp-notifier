@@ -68,7 +68,11 @@ public class CallForPaperController extends Action {
   }
 
   private boolean notValid(String token) {
-    return !config.getString("cfp.notifier.verification-token").equals(token);
+    boolean notValid = !config.getString("cfp.notifier.verification-token").equals(token);
+    if (notValid) {
+      logger.debug("Token not valid, rejecting request.");
+    }
+    return notValid;
   }
 
   @PostMapping("/delete")
