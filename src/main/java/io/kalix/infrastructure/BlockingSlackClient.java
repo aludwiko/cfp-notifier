@@ -130,6 +130,7 @@ public class BlockingSlackClient implements SlackClient {
   }
 
   private CompletableFuture<SlackResponse> postJsonBody(String url, String jsonString) {
+    logger.debug("Posting json body to slack: {}, token {}", url, config.getString("cfp.notifier.bot-oauth-token"));
     try (Response response = slack.getHttpClient().postCamelCaseJsonBodyWithBearerHeader(url,
       config.getString("cfp.notifier.bot-oauth-token"),
       jsonString)) {

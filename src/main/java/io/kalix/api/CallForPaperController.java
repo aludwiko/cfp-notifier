@@ -107,7 +107,10 @@ public class CallForPaperController extends Action {
     logger.debug("Processing cfp add request, opening add dialog");
     CompletionStage<Effect<HttpResponse>> openAddView = slackClient.openAddCfp(triggerId, ADD_CFP_CALLBACK_ID, CONFERENCE_NAME_FIELD, CONFERENCE_LINK_FIELD, CONFERENCE_CFP_DEADLINE_FIELD)
       .thenApply(res -> switch (res) {
-        case SlackResponse.Response ignore -> effects().reply(HttpResponse.ok());
+        case SlackResponse.Response ignore -> {
+          logger.debug("Opened add cfp dialog");
+          yield effects().reply(HttpResponse.ok());
+        }
         case SlackResponse.Failure failure -> {
           logger.error("open add cfp failed, status: {}, msg: {}, exception: {}", failure.code(), failure.message(), failure.exception());
           yield effects().error("Failed to open add cfp");
