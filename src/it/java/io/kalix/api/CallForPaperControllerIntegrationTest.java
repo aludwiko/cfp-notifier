@@ -152,7 +152,7 @@ class CallForPaperControllerIntegrationTest extends KalixIntegrationTestKitSuppo
     String cfpId = UUID.randomUUID().toString();
     execute(componentClient.forValueEntity(cfpId)
       .call(CallForPaperEntity::create)
-      .params(new CreateCallForPaper("My conference", LocalDate.now(), "url", "andrzej")));
+      .params(new CreateCallForPaper("My conference", LocalDate.now().plusDays(20), "url", "andrzej")));
 
 
     ViewState.SelectedOption selectedOption = new ViewState.SelectedOption();
