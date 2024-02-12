@@ -126,9 +126,9 @@
                 </assembly>
                 <entryPoint>
                   <arg>java</arg>
+                  <arg>-Dspring.profiles.active=production</arg>
                   <arg>-jar</arg>
                   <arg>/maven/${project.build.finalName}.jar</arg>
-                  <arg>-Dspring.profiles.active=production</arg>
                 </entryPoint>
               </build>
             </image>
