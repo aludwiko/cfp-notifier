@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Table("cfp_all")
-@ViewId("cfp-view")
+@ViewId("cfp-view-2")
 public class AllCallForPaperView extends View<CallForPaperView> {
 
   @Subscribe.ValueEntity(CallForPaperEntity.class)
