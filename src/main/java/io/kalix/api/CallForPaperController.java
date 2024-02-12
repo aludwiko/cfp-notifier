@@ -102,7 +102,6 @@ public class CallForPaperController extends Action {
   @PostMapping("/add")
   public Effect<HttpResponse> openAddView(@RequestParam String token, @RequestParam("trigger_id") String triggerId) {
     if (notValid(token)) {
-      logger.debug("Processing cfp add request rejected");
       return effects().error("Access denied", StatusCode.ErrorCode.FORBIDDEN);
     }
     logger.debug("Processing cfp add request, opening add dialog");
