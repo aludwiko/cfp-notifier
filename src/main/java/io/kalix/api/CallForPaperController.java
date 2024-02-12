@@ -90,7 +90,14 @@ public class CallForPaperController extends Action {
     CompletionStage<Effect<HttpResponse>> openDeleteView = cfps.thenCompose(callForPaperList ->
         slackClient.openCfpsToDelete(callForPaperList.callForPaperViews(), triggerId, DELETE_CFP_CALLBACK_ID, DELETE_CFP_ID_FIELD))
       .thenApply(res -> switch (res) {
-        case SlackResponse.Response ignore -> effects().reply(HttpResponse.ok());
+        case SlackResponse.Response response -> {
+          if (response.code() != 200) {
+            logger.error("Failed to open delete modal status: {}, msg: {}", response.code(), response.message());
+            yield effects().error("Failed to open cfp to delete");
+          } else {
+            yield effects().reply(HttpResponse.ok());
+          }
+        }
         case SlackResponse.Failure failure -> {
           logger.error("open cfp to delete failed, status: {}, msg: {}, exception: {}", failure.code(), failure.message(), failure.exception());
           yield effects().error("Failed to open cfp to delete");
@@ -107,9 +114,13 @@ public class CallForPaperController extends Action {
     logger.debug("Processing cfp add request, opening add dialog");
     CompletionStage<Effect<HttpResponse>> openAddView = slackClient.openAddCfp(triggerId, ADD_CFP_CALLBACK_ID, CONFERENCE_NAME_FIELD, CONFERENCE_LINK_FIELD, CONFERENCE_CFP_DEADLINE_FIELD)
       .thenApply(res -> switch (res) {
-        case SlackResponse.Response ignore -> {
-          logger.debug("Opened add cfp dialog");
-          yield effects().reply(HttpResponse.ok());
+        case SlackResponse.Response response -> {
+          if (response.code() != 200) {
+            logger.error("Failed to open add modal status: {}, msg: {}", response.code(), response.message());
+            yield effects().error("Failed to open add cfp");
+          } else {
+            yield effects().reply(HttpResponse.ok());
+          }
         }
         case SlackResponse.Failure failure -> {
           logger.error("open add cfp failed, status: {}, msg: {}, exception: {}", failure.code(), failure.message(), failure.exception());
