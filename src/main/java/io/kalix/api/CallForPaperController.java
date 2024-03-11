@@ -1,6 +1,5 @@
 package io.kalix.api;
 
-import com.google.api.HttpBody;
 import com.typesafe.config.Config;
 import io.kalix.application.CallForPaperEntity;
 import io.kalix.application.CreateCallForPaper;
@@ -9,6 +8,7 @@ import io.kalix.application.SlackResponse;
 import io.kalix.view.AllCallForPaperView;
 import io.kalix.view.CallForPaperList;
 import io.kalix.view.CallForPaperView;
+import kalix.javasdk.HttpResponse;
 import kalix.javasdk.StatusCode;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Acl;
@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
+
+import static kalix.javasdk.StatusCode.Success.OK;
 
 @RequestMapping("/api/cfp")
 @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
@@ -47,7 +49,7 @@ public class CallForPaperController extends Action {
   }
 
   @PostMapping("/list")
-  public Effect<HttpBody> postList(@RequestParam String token) {
+  public Effect<HttpResponse> postList(@RequestParam String token) {
 
     if (notValid(token)) {
       return effects().error("Access denied", StatusCode.ErrorCode.FORBIDDEN);
@@ -58,16 +60,23 @@ public class CallForPaperController extends Action {
       .call(AllCallForPaperView::getCallForPapers)
       .execute();
 
-    return effects().asyncReply(cfps.thenApply(callForPaperList ->
-      slackClient.getCfpsListPayload(callForPaperList.callForPaperViews())));
+    return effects().asyncReply(cfps.thenApply(callForPaperList -> {
+        var payload = slackClient.getCfpsListPayload(callForPaperList.callForPaperViews());
+        return HttpResponse.of(OK, "application/json", payload.getBytes());
+      }
+    ));
   }
 
   private boolean notValid(String token) {
-    return !config.getString("cfp.verification-token").equals(token);
+    boolean notValid = !config.getString("cfp.notifier.verification-token").equals(token);
+    if (notValid) {
+      logger.debug("Token not valid, rejecting request.");
+    }
+    return notValid;
   }
 
   @PostMapping("/delete")
-  public Effect<HttpBody> openDeleteView(@RequestParam String token, @RequestParam("trigger_id") String triggerId) {
+  public Effect<HttpResponse> openDeleteView(@RequestParam String token, @RequestParam("trigger_id") String triggerId) {
 
     if (notValid(token)) {
       return effects().error("Access denied", StatusCode.ErrorCode.FORBIDDEN);
@@ -78,10 +87,17 @@ public class CallForPaperController extends Action {
       .call(AllCallForPaperView::getCallForPapers)
       .execute();
 
-    CompletionStage<Effect<HttpBody>> openDeleteView = cfps.thenCompose(callForPaperList ->
+    CompletionStage<Effect<HttpResponse>> openDeleteView = cfps.thenCompose(callForPaperList ->
         slackClient.openCfpsToDelete(callForPaperList.callForPaperViews(), triggerId, DELETE_CFP_CALLBACK_ID, DELETE_CFP_ID_FIELD))
       .thenApply(res -> switch (res) {
-        case SlackResponse.Success ignore -> effects().reply(HttpBody.newBuilder().build());
+        case SlackResponse.Response response -> {
+          if (response.code() != 200) {
+            logger.error("Failed to open delete modal status: {}, msg: {}", response.code(), response.message());
+            yield effects().error("Failed to open cfp to delete");
+          } else {
+            yield effects().reply(HttpResponse.ok());
+          }
+        }
         case SlackResponse.Failure failure -> {
           logger.error("open cfp to delete failed, status: {}, msg: {}, exception: {}", failure.code(), failure.message(), failure.exception());
           yield effects().error("Failed to open cfp to delete");
@@ -91,13 +107,21 @@ public class CallForPaperController extends Action {
   }
 
   @PostMapping("/add")
-  public Effect<HttpBody> openAddView(@RequestParam String token, @RequestParam("trigger_id") String triggerId) {
+  public Effect<HttpResponse> openAddView(@RequestParam String token, @RequestParam("trigger_id") String triggerId) {
     if (notValid(token)) {
       return effects().error("Access denied", StatusCode.ErrorCode.FORBIDDEN);
     }
-    CompletionStage<Effect<HttpBody>> openAddView = slackClient.openAddCfp(triggerId, ADD_CFP_CALLBACK_ID, CONFERENCE_NAME_FIELD, CONFERENCE_LINK_FIELD, CONFERENCE_CFP_DEADLINE_FIELD)
+    logger.debug("Processing cfp add request, opening add dialog");
+    CompletionStage<Effect<HttpResponse>> openAddView = slackClient.openAddCfp(triggerId, ADD_CFP_CALLBACK_ID, CONFERENCE_NAME_FIELD, CONFERENCE_LINK_FIELD, CONFERENCE_CFP_DEADLINE_FIELD)
       .thenApply(res -> switch (res) {
-        case SlackResponse.Success ignore -> effects().reply(HttpBody.newBuilder().build());
+        case SlackResponse.Response response -> {
+          if (response.code() != 200) {
+            logger.error("Failed to open add modal status: {}, msg: {}", response.code(), response.message());
+            yield effects().error("Failed to open add cfp");
+          } else {
+            yield effects().reply(HttpResponse.ok());
+          }
+        }
         case SlackResponse.Failure failure -> {
           logger.error("open add cfp failed, status: {}, msg: {}, exception: {}", failure.code(), failure.message(), failure.exception());
           yield effects().error("Failed to open add cfp");
@@ -107,7 +131,7 @@ public class CallForPaperController extends Action {
   }
 
   @PostMapping("/submit")
-  public Effect<HttpBody> submit(@RequestParam String payload) {
+  public Effect<HttpResponse> submit(@RequestParam String payload) {
 
     ViewSubmission viewSubmission = ViewSubmissionParser.parse(payload);
 
@@ -125,36 +149,36 @@ public class CallForPaperController extends Action {
         return handleAdd(viewSubmission);
       } else {
         logger.info("Unknown callbackId {}", viewSubmission.view().callbackId());
-        return effects().reply(HttpBody.newBuilder().build());
+        return effects().reply(HttpResponse.ok());
       }
     } else {
       logger.debug("Ignoring view submission");
-      return effects().reply(HttpBody.getDefaultInstance());
+      return effects().reply(HttpResponse.ok());
     }
   }
 
-  private Effect<HttpBody> handleDelete(ViewSubmission viewSubmission) {
+  private Effect<HttpResponse> handleDelete(ViewSubmission viewSubmission) {
     String cfpId = viewSubmission.view().state().getValues().get(DELETE_CFP_ID_FIELD).get(DELETE_CFP_ID_FIELD).getSelectedOption().getValue();
-    CompletionStage<Effect<HttpBody>> deleteCfp = componentClient.forValueEntity(cfpId).call(CallForPaperEntity::delete).execute()
+    CompletionStage<Effect<HttpResponse>> deleteCfp = componentClient.forValueEntity(cfpId).call(CallForPaperEntity::delete).execute()
       .handle((s, throwable) -> {
         if (throwable != null) {
           logger.error("Failed to delete cfp: " + cfpId, throwable);
           return effects().error("Failed to delete cfp: " + cfpId);
         } else {
           logger.info("Deleted cfp: " + cfpId);
-          return effects().reply(HttpBody.newBuilder().build());
+          return effects().reply(HttpResponse.ok());
         }
       });
     return effects().asyncEffect(deleteCfp);
   }
 
-  private Effect<HttpBody> handleAdd(ViewSubmission viewSubmission) {
+  private Effect<HttpResponse> handleAdd(ViewSubmission viewSubmission) {
     String conferenceName = viewSubmission.view().state().getValues().get(CONFERENCE_NAME_FIELD).get(CONFERENCE_NAME_FIELD).getValue();
     String conferenceLink = viewSubmission.view().state().getValues().get(CONFERENCE_LINK_FIELD).get(CONFERENCE_LINK_FIELD).getValue();
     String conferenceCfpDeadline = viewSubmission.view().state().getValues().get(CONFERENCE_CFP_DEADLINE_FIELD).get(CONFERENCE_CFP_DEADLINE_FIELD).getSelectedDate();
     var cfpId = UUID.randomUUID().toString();
     CreateCallForPaper callForPaper = new CreateCallForPaper(conferenceName, LocalDate.parse(conferenceCfpDeadline), conferenceLink, viewSubmission.user().username());
-    CompletionStage<Effect<HttpBody>> addCfp = componentClient.forValueEntity(cfpId)
+    CompletionStage<Effect<HttpResponse>> addCfp = componentClient.forValueEntity(cfpId)
       .call(CallForPaperEntity::create)
       .params(callForPaper)
       .execute()
@@ -164,8 +188,20 @@ public class CallForPaperController extends Action {
           logger.error("Failed to add cfp: " + callForPaper, throwable);
           return effects().error("Failed to add cfp: " + callForPaper);
         } else {
-          logger.info("Added cfp: " + callForPaper);
-          return effects().reply(HttpBody.newBuilder().build());
+          return switch (result) {
+            case SlackResponse.Response response -> {
+              if (response.code() != 200) {
+                logger.error("Failed to post new cfp {}, status: {}, msg: {}", callForPaper, response.code(), response.message());
+              } else {
+                logger.info("Added cfp: " + callForPaper);
+              }
+              yield effects().reply(HttpResponse.ok());
+            }
+            case SlackResponse.Failure failure -> {
+              logger.error("Failed to post new cfp: " + callForPaper, failure.exception());
+              yield effects().reply(HttpResponse.ok());
+            }
+          };
         }
       });
     return effects().asyncEffect(addCfp);

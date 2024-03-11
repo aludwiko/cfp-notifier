@@ -1,0 +1,92 @@
+name: cfp-notifier-pipeline
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+
+env:
+#    KALIX_STAGE_TOKEN: ${{ secrets.KALIX_STAGE_TOKEN }}
+#    KALIX_STAGE_PROJECT: ${{ vars.KALIX_STAGE_PROJECT }}
+    KALIX_TOKEN: ${{ secrets.KALIX_PROD_TOKEN }}
+    KALIX_PROJECT: ${{ vars.KALIX_PROD_PROJECT }}
+    SERVICE_NAME: cfp-notifier
+
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '21'
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build and verify
+        run: mvn clean verify -Pit --no-transfer-progress
+
+  deploy:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Kalix CLI
+        uses: lightbend/setup-kalix-action@v1
+        with:
+          token: ${{ secrets.KALIX_PROD_TOKEN }}
+          project-id: ${{ vars.KALIX_PROD_PROJECT }}
+      - name: Test
+        run: kalix service list
+      - name: Publish docker
+        run: |
+          mvn deploy --no-transfer-progress
+      - name: Deploy
+        run: |
+          export dockerImage=`mvn git-commit-id:revision help:evaluate -Dexpression=dockerImage -q -DforceStdout `
+          export dockerTag=`mvn git-commit-id:revision help:evaluate -Dexpression=dockerTag -q -DforceStdout`
+          export CFP_NOTIFIER_IMAGE=$dockerImage:$dockerTag
+          cat cfp-notifier.yml | envsubst > cfp-notifier-subst.yml
+          kalix service apply -f cfp-notifier-subst.yml
+
+  verify-ready:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Install Kalix CLI
+        uses: lightbend/setup-kalix-action@v1
+        with:
+          token: ${{ secrets.KALIX_PROD_TOKEN }}
+          project-id: ${{ vars.KALIX_PROD_PROJECT }}
+      - name: Verify
+        run: |
+          # Replace the following line with your actual deployment command
+          service_status=$(kalix service get $SERVICE_NAME -o json)
+  
+          # Extract status from JSON response        
+          status=$(echo $service_status | jq -r '.status.summary')
+          max_retries=20
+          retries=0
+  
+          # Loop to check status every minute (adjust interval as needed)
+          while [ "$status" != "Ready" ] && [ $retries -lt $max_retries ]; do
+            echo "Application status is not yet 'Ready'. Retrying ..."
+            sleep 15
+  
+            # Repeat the deployment command and update the status
+            service_status=$(kalix service get $SERVICE_NAME -o json)
+            status=$(echo $service_status | jq -r '.status.summary')
+          
+            # Increment retry count
+            retries=$((retries+1))
+          done
+          
+          if [ "$status" != "Ready" ]; then
+            echo "Maximum retry attempts reached. Application status is still not 'Ready'."
+            exit 1
+          fi
+
+          echo "Application status is 'Ready'."
