@@ -8,11 +8,14 @@ import io.kalix.application.SlackResponse;
 import io.kalix.view.AllCallForPaperView;
 import io.kalix.view.CallForPaperList;
 import io.kalix.view.CallForPaperView;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
 import kalix.javasdk.HttpResponse;
 import kalix.javasdk.StatusCode;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Acl;
 import kalix.javasdk.client.ComponentClient;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
@@ -178,11 +182,19 @@ public class CallForPaperController extends Action {
     String conferenceCfpDeadline = viewSubmission.view().state().getValues().get(CONFERENCE_CFP_DEADLINE_FIELD).get(CONFERENCE_CFP_DEADLINE_FIELD).getSelectedDate();
     var cfpId = UUID.randomUUID().toString();
     CreateCallForPaper callForPaper = new CreateCallForPaper(conferenceName, LocalDate.parse(conferenceCfpDeadline), conferenceLink, viewSubmission.user().username());
+
     CompletionStage<Effect<HttpResponse>> addCfp = componentClient.forValueEntity(cfpId)
       .call(CallForPaperEntity::create)
       .params(callForPaper)
       .execute()
-      .thenCompose(cfp -> slackClient.postNewCfp(CallForPaperView.of(cfp)))
+      .thenCompose(cfp -> {
+        Optional<Span> span = startSpan("slack-api-post-new-cfp");
+        return slackClient.postNewCfp(CallForPaperView.of(cfp)).thenApply(response -> {
+            span.ifPresent(Span::end);
+            return response;
+          }
+        );
+      })
       .handle((result, throwable) -> {
         if (throwable != null) {
           logger.error("Failed to add cfp: " + callForPaper, throwable);
@@ -205,5 +217,15 @@ public class CallForPaperController extends Action {
         }
       });
     return effects().asyncEffect(addCfp);
+  }
+
+  private Optional<Span> startSpan(String spanName) {
+    var otelCurrentContext = actionContext().metadata().traceContext().asOpenTelemetryContext();
+    Optional<Span> span = actionContext().getOpenTelemetryTracer().map(tracer -> tracer
+      .spanBuilder(spanName)
+      .setParent(otelCurrentContext)
+      .setSpanKind(SpanKind.CLIENT)
+      .startSpan());
+    return span;
   }
 }
