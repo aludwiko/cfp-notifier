@@ -1,6 +1,8 @@
 name: cfp-notifier
 service:
-  tracingEnabled: true
+  telemetry:
+    tracing:
+      enabled: true
   env:
   - name: SLACK_WEBHOOK_URL
     valueFrom:
