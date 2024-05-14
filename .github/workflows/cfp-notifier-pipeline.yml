@@ -23,6 +23,11 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '21'
+      - name: Install Kalix CLI
+        uses: lightbend/setup-kalix-action@2134-usage-of-tmp-dir-in-kalix
+        with:
+          token: ${{ secrets.KALIX_PROD_TOKEN }}
+          project-id: ${{ vars.KALIX_PROD_PROJECT }}
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Build and verify
