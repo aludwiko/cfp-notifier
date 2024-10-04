@@ -61,7 +61,8 @@ public class CallForPaperController extends Action {
 
     CompletionStage<CallForPaperList> cfps = componentClient
       .forView()
-      .call(AllCallForPaperView::getCallForPapers)
+      .call(AllCallForPaperView::getOpenCallForPapers)
+      .params(LocalDate.now().toEpochDay())
       .execute();
 
     return effects().asyncReply(cfps.thenApply(callForPaperList -> {
@@ -88,7 +89,8 @@ public class CallForPaperController extends Action {
 
     CompletionStage<CallForPaperList> cfps = componentClient
       .forView()
-      .call(AllCallForPaperView::getCallForPapers)
+      .call(AllCallForPaperView::getOpenCallForPapers)
+      .params(LocalDate.now().toEpochDay())
       .execute();
 
     CompletionStage<Effect<HttpResponse>> openDeleteView = cfps.thenCompose(callForPaperList ->
