@@ -107,7 +107,7 @@ class CallForPaperControllerIntegrationTest extends KalixIntegrationTestKitSuppo
     //given
     String conferenceName = "My conference";
     String conferenceLink = "url";
-    String cfpDeadline = "2024-01-01";
+    String cfpDeadline = LocalDate.now().plusDays(20).toString();
     ViewState.Value conferenceNameValue = new ViewState.Value();
     conferenceNameValue.setValue(conferenceName);
     ViewState.Value conferenceLinkValue = new ViewState.Value();
@@ -192,15 +192,15 @@ class CallForPaperControllerIntegrationTest extends KalixIntegrationTestKitSuppo
   public void shouldListCfps() throws InterruptedException {
     //given
     String cfpId1 = "1";
-    CreateCallForPaper callForPaper1 = new CreateCallForPaper("My conference 1", LocalDate.parse("2021-01-03"), "url", "andrzej");
+    CreateCallForPaper callForPaper1 = new CreateCallForPaper("My conference 1", LocalDate.now().plusDays(3), "url", "andrzej");
     execute(componentClient.forValueEntity(cfpId1).call(CallForPaperEntity::create).params(callForPaper1));
 
     String cfpId2 = "2";
-    CreateCallForPaper callForPaper2 = new CreateCallForPaper("My conference 2", LocalDate.parse("2021-01-01"), "url", "andrzej");
+    CreateCallForPaper callForPaper2 = new CreateCallForPaper("My conference 2", LocalDate.now().plusDays(1), "url", "andrzej");
     execute(componentClient.forValueEntity(cfpId2).call(CallForPaperEntity::create).params(callForPaper2));
 
     String cfpId3 = "3";
-    CreateCallForPaper callForPaper3 = new CreateCallForPaper("My conference 3", LocalDate.parse("2021-01-02"), "url", "andrzej");
+    CreateCallForPaper callForPaper3 = new CreateCallForPaper("My conference 3", LocalDate.now().plusDays(2), "url", "andrzej");
     execute(componentClient.forValueEntity(cfpId3).call(CallForPaperEntity::create).params(callForPaper3));
 
     await()
